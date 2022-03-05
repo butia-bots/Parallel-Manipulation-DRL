@@ -14,8 +14,8 @@ class Agent(object):
     def __init__(self, config, policy, global_episode, global_step, n_agent=0, agent_type='exploration', log_dir=''):
         print(f"Initializing agent {n_agent}...")
         self.config = config
-        self.action_low = [-1.5, -0.1]
-        self.action_high = [1.5, 0.12]
+        self.action_low = -1.0
+        self.action_high = 1.0
         self.n_agent = n_agent
         self.agent_type = agent_type
         self.max_steps = config['max_ep_length']  # maximum number of steps per episode
