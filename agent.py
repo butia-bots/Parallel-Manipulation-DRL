@@ -72,7 +72,7 @@ class Agent(object):
             if self.config['test']:
                 goal = [test_goals(self.local_episode)]
                 print("New Goal:", goal)
-            state = env.reset()['observation']
+            state = np.array(env.reset()['observation'])
             if not self.config['test']:
                 self.exp_buffer.clear()
                 self.ou_noise.reset()
@@ -93,8 +93,7 @@ class Agent(object):
 
                 next_state, reward, done, info = env.step(action)
                 episode_reward += reward
-                print('Next state:', next_state)
-                state = next_state['observation']
+                state = np.array(next_state['observation'])
 
                 if not self.config['test']:
                     self.exp_buffer.append((state, action, reward))
