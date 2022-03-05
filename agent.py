@@ -78,69 +78,72 @@ class Agent(object):
                 self.ou_noise.reset()
             done = False
             while not done:
-                if self.config['model'] == 'PDSRL' or self.config['model'] == 'SAC':
-                    action, _, _, _, _, _, _, _ = self.actor.forward(torch.Tensor(state).to(self.config['device']), deterministic=True if self.agent_type == "exploitation" else False)
-                    action = action.detach().cpu().numpy().flatten()
-                else:
-                    action = self.actor.get_action(np.array(state))
-                    if self.agent_type == "exploration":
-                        action = action.squeeze(0)
-                        action = self.ou_noise.get_action(action, num_steps)
-                    else:
+                try:
+                    if self.config['model'] == 'PDSRL' or self.config['model'] == 'SAC':
+                        action, _, _, _, _, _, _, _ = self.actor.forward(torch.Tensor(state).to(self.config['device']), deterministic=True if self.agent_type == "exploitation" else False)
                         action = action.detach().cpu().numpy().flatten()
-                # action[0] = np.clip(action[0], self.action_low[0], self.action_high[0])
-                # action[1] = np.clip(action[1], self.action_low[1], self.action_high[1])
-
-                next_state, reward, done, info = env.step(action)
-                episode_reward += reward
-                next_state = next_state['observation']
-                state = next_state
-
-                if not self.config['test']:
-                    self.exp_buffer.append((state, action, reward))
-
-                    # We need at least N steps in the experience buffer before we can compute Bellman
-                    # rewards and add an N-step experience to replay memory
-                    if len(self.exp_buffer) >= self.config['n_step_return']:
-                        state_0, action_0, reward_0 = self.exp_buffer.popleft()
-                        discounted_reward = reward_0
-                        gamma = self.config['discount_rate']
-                        for (_, _, r_i) in self.exp_buffer:
-                            discounted_reward += r_i * gamma
-                            gamma *= self.config['discount_rate']
-                        # We want to fill buffer only with form explorator
+                    else:
+                        action = self.actor.get_action(np.array(state))
                         if self.agent_type == "exploration":
-                            try:
-                                replay_queue.put_nowait([state_0, action_0, discounted_reward, next_state, done, gamma])
-                            except:
-                                pass
+                            action = action.squeeze(0)
+                            action = self.ou_noise.get_action(action, num_steps)
+                        else:
+                            action = action.detach().cpu().numpy().flatten()
+                    # action[0] = np.clip(action[0], self.action_low[0], self.action_high[0])
+                    # action[1] = np.clip(action[1], self.action_low[1], self.action_high[1])
 
-                if done or num_steps == self.max_steps:
-                    # add rest of experiences remaining in buffer
+                    next_state, reward, done, info = env.step(action)
+                    episode_reward += reward
+                    next_state = next_state['observation']
+                    state = next_state
+
                     if not self.config['test']:
-                        while len(self.exp_buffer) != 0:
+                        self.exp_buffer.append((state, action, reward))
+
+                        # We need at least N steps in the experience buffer before we can compute Bellman
+                        # rewards and add an N-step experience to replay memory
+                        if len(self.exp_buffer) >= self.config['n_step_return']:
                             state_0, action_0, reward_0 = self.exp_buffer.popleft()
                             discounted_reward = reward_0
                             gamma = self.config['discount_rate']
                             for (_, _, r_i) in self.exp_buffer:
                                 discounted_reward += r_i * gamma
                                 gamma *= self.config['discount_rate']
+                            # We want to fill buffer only with form explorator
                             if self.agent_type == "exploration":
                                 try:
-                                    replay_queue.put_nowait([state_0, action_0, discounted_reward, next_state, done,
-                                                             gamma])
+                                    replay_queue.put_nowait([state_0, action_0, discounted_reward, next_state, done, gamma])
                                 except:
                                     pass
-                    break
 
-                num_steps += 1
-                with self.global_step.get_lock():
-                    self.global_step.value += 1
+                    if done or num_steps == self.max_steps:
+                        # add rest of experiences remaining in buffer
+                        if not self.config['test']:
+                            while len(self.exp_buffer) != 0:
+                                state_0, action_0, reward_0 = self.exp_buffer.popleft()
+                                discounted_reward = reward_0
+                                gamma = self.config['discount_rate']
+                                for (_, _, r_i) in self.exp_buffer:
+                                    discounted_reward += r_i * gamma
+                                    gamma *= self.config['discount_rate']
+                                if self.agent_type == "exploration":
+                                    try:
+                                        replay_queue.put_nowait([state_0, action_0, discounted_reward, next_state, done,
+                                                                 gamma])
+                                    except:
+                                        pass
+                        break
 
-                if self.config['test']:
-                    position = env.get_position()  # Get x and y turtlebot position to compute test charts
-                    logs[3] = position[0]
-                    logs[4] = position[1]
+                    num_steps += 1
+                    with self.global_step.get_lock():
+                        self.global_step.value += 1
+
+                    if self.config['test']:
+                        position = env.get_position()  # Get x and y turtlebot position to compute test charts
+                        logs[3] = position[0]
+                        logs[4] = position[1]
+                except:
+                    pass
 
             with self.global_episode.get_lock():
                 self.global_episode.value += 1
