@@ -93,6 +93,7 @@ class Agent(object):
 
                 next_state, reward, done, info = env.step(action)
                 episode_reward += reward
+                print('Next state:', next_state)
                 state = next_state['observation']
 
                 if not self.config['test']:
