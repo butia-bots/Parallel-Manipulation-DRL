@@ -1,9 +1,8 @@
 #! /usr/bin/env python3
 
-import rospy
 from utils.utils import OUNoise, empty_torch_queue, test_goals
 from collections import deque
-import gym_turtlebot3
+import butia_gym
 import numpy as np
 import torch
 import time
@@ -56,14 +55,11 @@ class Agent(object):
         del source
 
     def run(self, training_on, replay_queue, learner_w_queue, logs):
+        env = gym.make('DoRISPickAndPlace-v1')
         time.sleep(1)
-        os.environ['ROS_MASTER_URI'] = "http://localhost:{}/".format(11310 + self.n_agent)
-        rospy.init_node(self.config['env_name'].replace('-', '_') + "_w{}".format(self.n_agent))
         goal = None
         if self.config['test']:
             goal = [test_goals(self.local_episode)]
-        env = gym.make(self.config['env_name'], env_stage=self.config['env_stage'], observation_mode=0, continuous=True, goal_list=goal)
-        time.sleep(1)
 
         best_reward = -float("inf")
         rewards = []

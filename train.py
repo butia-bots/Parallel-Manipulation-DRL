@@ -1,6 +1,5 @@
 #! /usr/bin/env python3
 
-import rospy
 import comet_ml
 from multiprocessing import set_start_method
 import torch.multiprocessing as torch_mp
@@ -155,19 +154,6 @@ if __name__ == "__main__":
     with open(path + '/config.yml', 'r') as ymlfile:
         config = yaml.load(ymlfile, Loader=yaml.FullLoader)
 
-    # Opening gazebo environments
-    for i in range(config['num_agents'] if not config['test'] else 1):
-        if not i:
-            os.system('gnome-terminal --tab --working-directory=WORK_DIR -- zsh -c "export '
-                      'ROS_MASTER_URI=http://localhost:{}; export GAZEBO_MASTER_URI=http://localhost:{}; roslaunch '
-                      'turtlebot3_gazebo turtlebot3_stage_{}_1.launch"'.format(11310 + i, 11340 + i, config['env_stage']))
-        else:
-            os.system('gnome-terminal --tab --working-directory=WORK_DIR -- zsh -c "export '
-                      'ROS_MASTER_URI=http://localhost:{}; export GAZEBO_MASTER_URI=http://localhost:{}; roslaunch '
-                      'turtlebot3_gazebo turtlebot3_stage_{}.launch"'.format(11310 + i, 11340 + i, config['env_stage']))
-        time.sleep(2)
-    time.sleep(25)
-
     if config['seed']:
         torch.manual_seed(config['random_seed'])
         np.random.seed(config['random_seed'])
@@ -181,7 +167,7 @@ if __name__ == "__main__":
         os.makedirs(results_dir)
     if config['test']:
         model_name = f"{config['model']}_{config['dense_size']}_A{config['num_agents']}_S{config['env_stage']}_{'P' if config['replay_memory_prioritized'] else 'N'}"
-        path_model = f"{experiment_dir}/{model_name}/local_episode_150_reward_200.000000.pt"
+        path_model = f"{experiment_dir}/{model_name}/local_episode_{config['num_episodes']}_reward_200.000000.pt"
 
     # Data structures
     processes = []
