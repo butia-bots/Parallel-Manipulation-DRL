@@ -77,6 +77,7 @@ class Agent(object):
                 self.exp_buffer.clear()
                 self.ou_noise.reset()
             done = False
+            print('State:', state)
             while not done:
                 for s in range(len(state)):
                     if state[s] > 2.5:
