@@ -113,7 +113,7 @@ class Agent(object):
                             except:
                                 pass
 
-                state = next_state
+                state = next_state['observation']
 
                 if done or num_steps == self.max_steps:
                     # add rest of experiences remaining in buffer
