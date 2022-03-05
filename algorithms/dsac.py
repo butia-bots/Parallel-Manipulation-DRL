@@ -94,6 +94,8 @@ class LearnerDSAC(object):
         weights = np.asarray(weights)
         inds = np.asarray(inds).flatten()
 
+        print('Next obs:', next_obs)
+
         obs = torch.from_numpy(obs).float().to(self.device)
         next_obs = torch.from_numpy(next_obs).float().to(self.device)
         actions = torch.from_numpy(actions).float().to(self.device)
