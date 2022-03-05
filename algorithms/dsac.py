@@ -89,7 +89,7 @@ class LearnerDSAC(object):
         obs = np.asarray(obs)
         actions = np.asarray(actions)
         rewards = np.asarray(rewards)
-        next_obs = np.asarray(next_obs)
+        next_obs = np.asarray(next_obs['observation'])
         terminals = np.asarray(terminals)
         weights = np.asarray(weights)
         inds = np.asarray(inds).flatten()
