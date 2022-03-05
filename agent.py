@@ -72,12 +72,11 @@ class Agent(object):
             if self.config['test']:
                 goal = [test_goals(self.local_episode)]
                 print("New Goal:", goal)
-            state = env.reset()
+            state = env.reset()['observation']
             if not self.config['test']:
                 self.exp_buffer.clear()
                 self.ou_noise.reset()
             done = False
-            print('State:', state)
             while not done:
                 for s in range(len(state)):
                     if state[s] > 2.5:
