@@ -1,4 +1,4 @@
-<h2 align="center">Parallel Deep Reinforcement Learning for Terrestrial Mobile Robots</h2>
+<h2 align="center">Parallel Deep Reinforcement Learning for Mobile Robots Manipulation</h2>
 
 <p align="center">
   <img src="https://img.shields.io/badge/ROS-NoeticNinjemys-yellow"/>
@@ -14,9 +14,7 @@
 
 ## Objective
 <p align="justify"> 
-  <a>In this repository, we present a study of deep reinforcement learning techniques that uses parallel distributional actor-critic networks to navigate terrestrial mobile robots. Our approaches were developed taking into account only a couple of laser range findings, the relative position and angle of the mobile robot to the target as inputs to make a robot reach the desired goal in an environment.
-We used a real-to-sim development structure, where the agents trained in the Gazebo simulator were deployed in real scenarios to enhance the evaluation further.
-Based on the results gathered, it is possible to conclude that parallel distributional deep reinforcement learning’s algorithms, with continuous actions, are effective for decision-make of a terrestrial robotic vehicle and outperform non-parallel-distributional approaches in training time consumption and navigation capability.</a>  
+  <a></a>  
 </p>
   
 
@@ -63,28 +61,12 @@ Note: depending on the speed of your internet connection this can take a long ti
 ## Results
 
 <p align="center"> 
-  <img src="media/PDDRL_S1_N_SIM.png" alt="PDDRL_S1_N_SIM" width="200"/>
-  <img src="media/PDSRL_S1_N_SIM.png" alt="PDSRL_S1_N_SIM" width="200"/>
-  <img src="media/PDDRL_S1_P_SIM.png" alt="PDDRL_S1_P_SIM" width="200"/>
-  <img src="media/PDSRL_S1_P_SIM.png" alt="PDSRL_S1_P_SIM" width="200"/>
-  <img src="media/PDDRL_S2_N_SIM.png" alt="PDDRL_S2_N_SIM" width="200"/>
-  <img src="media/PDSRL_S2_N_SIM.png" alt="PDSRL_S2_N_SIM" width="200"/>
-  <img src="media/PDDRL_S2_P_SIM.png" alt="PDDRL_S2_P_SIM" width="200"/>
-  <img src="media/PDSRL_S2_P_SIM.png" alt="PDSRL_S2_P_SIM" width="200"/>
-  <img src="media/PDDRL_S3_N_SIM.png" alt="PDDRL_S3_N_SIM" width="200"/>
-  <img src="media/PDSRL_S3_N_SIM.png" alt="PDSRL_S3_N_SIM" width="200"/>
-  <img src="media/PDDRL_S3_P_SIM.png" alt="PDDRL_S3_P_SIM" width="200"/>
-  <img src="media/PDSRL_S3_P_SIM.png" alt="PDSRL_S3_P_SIM" width="200"/>
-  <img src="media/PDDRL_S4_N_SIM.png" alt="PDDRL_S4_N_SIM" width="200"/>
-  <img src="media/PDSRL_S4_N_SIM.png" alt="PDSRL_S4_N_SIM" width="200"/>
-  <img src="media/PDDRL_S4_P_SIM.png" alt="PDDRL_S4_P_SIM" width="200"/>
-  <img src="media/PDSRL_S4_P_SIM.png" alt="PDSRL_S4_P_SIM" width="200"/>
 </p>
 
-See more about the results in the [YouTube video](https://youtu.be/mbOiTUvjrCU).
+See more about the results in the [YouTube video]().
 
 <p align="center"> 
   <i>If you liked this repository, please don't forget to starred it!</i>
-  <img src="https://img.shields.io/github/stars/victorkich/Parallel-Turtle-DRL?style=social"/>
+  <img src="https://img.shields.io/github/stars/butia-bots/Parallel-Manipulation-DRL?style=social"/>
 </p>
 
