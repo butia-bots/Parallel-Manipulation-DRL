@@ -93,7 +93,8 @@ class Agent(object):
 
                 next_state, reward, done, info = env.step(action)
                 episode_reward += reward
-                state = np.array(next_state['observation'])
+                next_state = next_state['observation']
+                state = next_state
 
                 if not self.config['test']:
                     self.exp_buffer.append((state, action, reward))
