@@ -61,6 +61,8 @@ class Agent(object):
         if self.config['test']:
             goal = [test_goals(self.local_episode)]
 
+        if self.n_agent == 0:
+            env.render()
         best_reward = -float("inf")
         rewards = []
         while (self.local_episode <= self.config['num_episodes']) if not self.config['test'] else (self.local_episode <= self.config['test_trials']):
