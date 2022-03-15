@@ -57,12 +57,7 @@ class Agent(object):
     def run(self, training_on, replay_queue, learner_w_queue, logs):
         env = gym.make('DoRISPickAndPlace-v1')
         time.sleep(1)
-        goal = None
-        if self.config['test']:
-            goal = [test_goals(self.local_episode)]
 
-        if self.n_agent == 0:
-            env.render()
         best_reward = -float("inf")
         rewards = []
         while (self.local_episode <= self.config['num_episodes']) if not self.config['test'] else (self.local_episode <= self.config['test_trials']):
@@ -70,7 +65,6 @@ class Agent(object):
             num_steps = 0
             self.local_episode += 1
             ep_start_time = time.time()
-            goal = None
             if self.config['test']:
                 goal = [test_goals(self.local_episode)]
                 print("New Goal:", goal)
@@ -81,6 +75,8 @@ class Agent(object):
             done = False
             while not done:
                 try:
+                    if self.n_agent == 0:
+                        env.render()
                     if self.config['model'] == 'PDSRL' or self.config['model'] == 'SAC':
                         action, _, _, _, _, _, _, _ = self.actor.forward(torch.Tensor(state).to(self.config['device']), deterministic=True if self.agent_type == "exploitation" else False)
                         action = action.detach().cpu().numpy().flatten()
