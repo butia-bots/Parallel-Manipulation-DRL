@@ -684,9 +684,9 @@ class HerReplayBuffer(ReplayBuffer):
     def add(
         self,
         obs: Dict[str, np.ndarray],
-        next_obs: Dict[str, np.ndarray],
         action: np.ndarray,
         reward: np.ndarray,
+        next_obs: Dict[str, np.ndarray],
         done: np.ndarray,
         gamma):
 
