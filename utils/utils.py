@@ -438,7 +438,7 @@ class HerReplayBuffer(ReplayBuffer):
         self.max_episode_length = config['max_ep_length']
         # storage for transitions of current episode for offline sampling
         # for online sampling, it replaces the "classic" replay buffer completely
-        her_buffer_size = buffer_size if online_sampling else self.max_episode_length
+        her_buffer_size = config['replay_mem_size']
 
         self.buffer_size = her_buffer_size
         self.clip_obs = clip_obs
