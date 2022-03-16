@@ -69,10 +69,10 @@ class Agent(object):
             if self.config['test']:
                 goal = [test_goals(self.local_episode)]
                 print("New Goal:", goal)
-            if self.config['her_memory']:
-                state = np.array(list(env.reset().values()))
-            else:
-                state = np.array(env.reset())
+            #if self.config['her_memory']:
+            #    state = np.array(list(env.reset().values()))
+            #else:
+            state = env.reset()
             if not self.config['test']:
                 self.exp_buffer.clear()
                 self.ou_noise.reset()
