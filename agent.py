@@ -80,7 +80,7 @@ class Agent(object):
             while not done:
                 state_net = copy.deepcopy(state)
                 if self.config['her_memory']:
-                    state_net = np.array(list(state_net.value()))
+                    state_net = np.array(list(state_net.values()))
 
                 if self.n_agent == 0:
                     env.render()
