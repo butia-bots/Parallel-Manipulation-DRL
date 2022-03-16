@@ -461,6 +461,7 @@ class HerReplayBuffer(ReplayBuffer):
         self.current_idx = 0
         # Counter to prevent overflow
         self.episode_steps = 0
+        self.full = False
 
         # Get shape of observation and goal (usually the same)
         self.obs_shape = get_obs_shape(box.Box(shape=[22], high=np.inf, low=-np.inf))
