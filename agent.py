@@ -68,7 +68,7 @@ class Agent(object):
             if self.config['test']:
                 goal = [test_goals(self.local_episode)]
                 print("New Goal:", goal)
-            state = np.array(env.reset()['observation'])
+            state = env.reset()
             if not self.config['test']:
                 self.exp_buffer.clear()
                 self.ou_noise.reset()
@@ -92,8 +92,6 @@ class Agent(object):
 
                     next_state, reward, done, info = env.step(action)
                     episode_reward += reward
-                    next_state = next_state['observation']
-                    state = next_state
 
                     if not self.config['test']:
                         self.exp_buffer.append((state, action, reward))
@@ -113,6 +111,8 @@ class Agent(object):
                                     replay_queue.put_nowait([state_0, action_0, discounted_reward, next_state, done, gamma])
                                 except:
                                     pass
+
+                    state = next_state
 
                     if done or num_steps == self.max_steps:
                         # add rest of experiences remaining in buffer
