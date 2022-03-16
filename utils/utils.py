@@ -686,6 +686,15 @@ class HerReplayBuffer(ReplayBuffer):
         """
         return np.clip((obs - obs_rms.mean) / np.sqrt(obs_rms.var + self.epsilon), -self.clip_obs, self.clip_obs)
 
+    def reset(self) -> None:
+        """
+        Reset the buffer.
+        """
+        self.pos = 0
+        self.current_idx = 0
+        self.full = False
+        self.episode_lengths = np.zeros(self.max_episode_stored, dtype=np.int64)
+
     def add(
         self,
         obs: Dict[str, np.ndarray],
