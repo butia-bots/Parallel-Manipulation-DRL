@@ -7,7 +7,7 @@ action_dim: 4
 max_action: 1.5
 
 # Training parameters
-model: PDSRL
+model: PDDRL
 batch_size: 256
 num_episodes: 500000
 num_steps_train: 10000000  # number of episodes from all agents
@@ -23,7 +23,8 @@ update_agent_ep: 1  # agent gets latest parameters from learner every update_age
 replay_queue_size: 1024  # queue with replays from all the agents
 batch_queue_size: 64  # queue with batches given to learner
 save_reward_threshold: 5
-replay_memory_prioritized: 1
+replay_memory_prioritized: 0
+her_memory: 1
 num_episode_save: 50
 device: cuda
 action_prior: uniform

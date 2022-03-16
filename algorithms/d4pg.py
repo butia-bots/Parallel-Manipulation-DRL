@@ -53,6 +53,8 @@ class LearnerD4PG(object):
         update_time = time.time()
 
         state, action, reward, next_state, done, gamma, weights, inds = batch
+        state = list(state.values())
+        next_state = list(next_state.values())
 
         state = np.asarray(state)
         action = np.asarray(action)

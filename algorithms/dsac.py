@@ -85,6 +85,8 @@ class LearnerDSAC(object):
         update_time = time.time()
 
         obs, actions, rewards, next_obs, terminals, gamma, weights, inds = batch
+        obs = list(obs.values())
+        next_obs = list(next_obs.values())
 
         obs = np.asarray(obs)
         actions = np.asarray(actions)

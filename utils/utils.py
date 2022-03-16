@@ -1,6 +1,11 @@
+from typing import Any, Dict, List, Optional, Tuple, Union
 from torch.nn import functional as F
+from collections import deque
+from gym import spaces
+from enum import Enum
 import numpy as np
 import operator
+import warnings
 import random
 import pickle
 import torch
@@ -197,6 +202,31 @@ class ReplayBuffer(object):
         with open(fn, 'wb') as f:
             pickle.dump(self._storage, f)
         print(f"Buffer dumped to {fn}")
+
+
+class GoalSelectionStrategy(Enum):
+    """
+    The strategies for selecting new goals when
+    creating artificial transitions.
+    """
+
+    # Select a goal that was achieved
+    # after the current step, in the same episode
+    FUTURE = 0
+    # Select the goal that was achieved
+    # at the end of the episode
+    FINAL = 1
+    # Select a goal that was achieved in the episode
+    EPISODE = 2
+
+
+# For convenience
+# that way, we can use string to select a strategy
+KEY_TO_GOAL_STRATEGY = {
+    "future": GoalSelectionStrategy.FUTURE,
+    "final": GoalSelectionStrategy.FINAL,
+    "episode": GoalSelectionStrategy.EPISODE,
+}
 
 
 class PrioritizedReplayBuffer(ReplayBuffer):
@@ -845,6 +875,8 @@ def create_replay_buffer(config, save_dir):
     if config['replay_memory_prioritized']:
         alpha = config['priority_alpha']
         return PrioritizedReplayBuffer(size=size, alpha=alpha, save_dir=save_dir)
+    elif config['her_memory']:
+        return HerReplayBuffer(config=config, size=size, save_dir=save_dir)
     return ReplayBuffer(size)
 
 
