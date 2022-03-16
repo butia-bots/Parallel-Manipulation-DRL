@@ -409,21 +409,14 @@ def get_obs_shape(
         raise NotImplementedError(f"{observation_space} observation space is not supported")
 
 
-class HerReplayBuffer(ReplayBuffer):
-    def __init__(self, config, save_dir,
-        buffer_size: int,
-        device: Union[torch.device, str] = "cpu",
-        replay_buffer=None,
-        max_episode_length: Optional[int] = None,
-        n_sampled_goal: int = 4,
-        goal_selection_strategy: Union[GoalSelectionStrategy, str] = "future",
-        online_sampling: bool = False,
-        handle_timeout_termination: bool = True,
-        clip_obs: float = 10.0,
-        epsilon: float = 1e-8
-    ):
+from gym.spaces import box
 
-        super(HerReplayBuffer, self).__init__(buffer_size, env.observation_space, env.action_space, device, env.num_envs)
+
+class HerReplayBuffer(ReplayBuffer):
+    def __init__(self, config, save_dir, buffer_size: int, device: Union[torch.device, str] = "cpu", replay_buffer=None,
+        max_episode_length: Optional[int] = None, n_sampled_goal: int = 4, goal_selection_strategy: Union[GoalSelectionStrategy, str] = "future",
+        online_sampling: bool = False, handle_timeout_termination: bool = True, clip_obs: float = 10.0, epsilon: float = 1e-8):
+        super(HerReplayBuffer, self).__init__(size=buffer_size)
 
         # convert goal_selection_strategy into GoalSelectionStrategy if string
         if isinstance(goal_selection_strategy, str):
@@ -442,7 +435,7 @@ class HerReplayBuffer(ReplayBuffer):
         # compute ratio between HER replays and regular replays in percent for online HER sampling
         self.her_ratio = 1 - (1.0 / (self.n_sampled_goal + 1))
         # maximum steps in episode
-        self.max_episode_length = get_time_limit(env, max_episode_length)
+        self.max_episode_length = config['max_ep_length']
         # storage for transitions of current episode for offline sampling
         # for online sampling, it replaces the "classic" replay buffer completely
         her_buffer_size = buffer_size if online_sampling else self.max_episode_length
@@ -456,6 +449,7 @@ class HerReplayBuffer(ReplayBuffer):
             replay_buffer = None
         self.replay_buffer = replay_buffer
         self.online_sampling = online_sampling
+        self.distance_threshold = 0.05
 
         # Handle timeouts termination properly if needed
         # see https://github.com/DLR-RM/stable-baselines3/issues/284
@@ -469,8 +463,8 @@ class HerReplayBuffer(ReplayBuffer):
         self.episode_steps = 0
 
         # Get shape of observation and goal (usually the same)
-        self.obs_shape = get_obs_shape(self.env.observation_space.spaces["observation"])
-        self.goal_shape = get_obs_shape(self.env.observation_space.spaces["achieved_goal"])
+        self.obs_shape = get_obs_shape(box.Box(shape=[22], high=np.inf, low=-np.inf))
+        self.goal_shape = get_obs_shape(box.Box(shape=[3], high=np.inf, low=-np.inf))
 
         # input dimensions for buffer initialization
         input_shape = {
@@ -563,6 +557,15 @@ class HerReplayBuffer(ReplayBuffer):
 
         return self._buffer["achieved_goal"][her_episode_indices, transitions_indices]
 
+    def goal_distance(self, goal_a, goal_b):
+        assert goal_a.shape == goal_b.shape
+        return np.linalg.norm(goal_a - goal_b, axis=-1)
+
+    def compute_reward(self, achieved_goal, goal, info):
+        # Compute distance between goal and the achieved goal.
+        d = self.goal_distance(achieved_goal, goal)
+        return -(d > self.distance_threshold).astype(np.float32)
+
     def _sample_transitions(self, batch_size: Optional[int], maybe_vec_env, online_sampling: bool, n_sampled_goal: Optional[int] = None):
         """
         :param batch_size: Number of element to sample (only used for online sampling)
@@ -640,8 +643,7 @@ class HerReplayBuffer(ReplayBuffer):
         # no virtual transition can be created
         if len(her_indices) > 0:
             # Vectorized computation of the new reward
-            transitions["reward"][her_indices, 0] = self.env.env_method(
-                "compute_reward",
+            transitions["reward"][her_indices, 0] = self.compute_reward(
                 # the new state depends on the previous state and action
                 # s_{t+1} = f(s_t, a_t)
                 # so the next_achieved_goal depends also on the previous state and action
@@ -652,7 +654,6 @@ class HerReplayBuffer(ReplayBuffer):
                 # here we use the new desired goal
                 transitions["desired_goal"][her_indices, 0],
                 transitions["info"][her_indices, 0],
-                indices=0,  # only call method for one env
             )[0]
         # concatenate observation with (desired) goal
         observations = self._normalize_obs(transitions, maybe_vec_env)

@@ -1,4 +1,5 @@
 #! /usr/bin/env python3
+import copy
 
 from utils.utils import OUNoise, empty_torch_queue, test_goals
 from collections import deque
@@ -68,20 +69,27 @@ class Agent(object):
             if self.config['test']:
                 goal = [test_goals(self.local_episode)]
                 print("New Goal:", goal)
-            state = env.reset()
+            if self.config['her_memory']:
+                state = np.array(list(env.reset().values()))
+            else:
+                state = np.array(env.reset())
             if not self.config['test']:
                 self.exp_buffer.clear()
                 self.ou_noise.reset()
             done = False
             while not done:
                 try:
+                    state_net = copy.deepcopy(state)
+                    if self.config['her_memory']:
+                        state_net = np.array(list(state_net.value()))
+
                     if self.n_agent == 0:
                         env.render()
                     if self.config['model'] == 'PDSRL' or self.config['model'] == 'SAC':
-                        action, _, _, _, _, _, _, _ = self.actor.forward(torch.Tensor(state).to(self.config['device']), deterministic=True if self.agent_type == "exploitation" else False)
+                        action, _, _, _, _, _, _, _ = self.actor.forward(torch.Tensor(state_net).to(self.config['device']), deterministic=True if self.agent_type == "exploitation" else False)
                         action = action.detach().cpu().numpy().flatten()
                     else:
-                        action = self.actor.get_action(np.array(state))
+                        action = self.actor.get_action(np.array(state_net))
                         if self.agent_type == "exploration":
                             action = action.squeeze(0)
                             action = self.ou_noise.get_action(action, num_steps)
@@ -113,6 +121,8 @@ class Agent(object):
                                     pass
 
                     state = next_state
+                    # if self.config['her_memory']:
+                    #    state = np.array(list(state.values()))
 
                     if done or num_steps == self.max_steps:
                         # add rest of experiences remaining in buffer
