@@ -637,6 +637,9 @@ class HerReplayBuffer(ReplayBuffer):
         print('Len episode indices:', len(episode_indices))
         print('Len transitions indices:', len(transitions_indices))
         # Convert info buffer to numpy array
+        print('Len info buffer:', len(self.info_buffer))
+        print('Len info buffer:', len(self.info_buffer[0]))
+
         transitions["info"] = np.array(
             [
                 self.info_buffer[episode_idx][transition_idx]
