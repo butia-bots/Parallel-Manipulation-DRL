@@ -466,8 +466,8 @@ class HerReplayBuffer(ReplayBuffer):
         self.current_idx = 0
 
         # Get shape of observation and goal (usually the same)
-        self.obs_shape = get_obs_shape(box.Box(shape=[21], high=np.inf, low=-np.inf))
-        self.goal_shape = get_obs_shape(box.Box(shape=[3], high=np.inf, low=-np.inf))
+        self.obs_shape = get_obs_shape(box.Box(shape=[self.config['obs_shape']], high=np.inf, low=-np.inf))
+        self.goal_shape = get_obs_shape(box.Box(shape=[self.config['goal_shape']], high=np.inf, low=-np.inf))
 
         # input dimensions for buffer initialization
         input_shape = {
