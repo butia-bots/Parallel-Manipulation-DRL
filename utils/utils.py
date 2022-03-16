@@ -686,18 +686,13 @@ class HerReplayBuffer(ReplayBuffer):
         action: np.ndarray,
         reward: np.ndarray,
         done: np.ndarray,
-        infos: List[Dict[str, Any]],
-    ) -> None:
+        gamma):
 
         if self.current_idx == 0 and self.full:
             # Clear info buffer
             self.info_buffer[self.pos] = deque(maxlen=self.max_episode_length)
 
-        # Remove termination signals due to timeout
-        if self.handle_timeout_termination:
-            done_ = done * (1 - np.array([info.get("TimeLimit.truncated", False) for info in infos]))
-        else:
-            done_ = done
+        done_ = done
 
         self._buffer["observation"][self.pos][self.current_idx] = obs["observation"]
         self._buffer["achieved_goal"][self.pos][self.current_idx] = obs["achieved_goal"]
@@ -717,11 +712,8 @@ class HerReplayBuffer(ReplayBuffer):
                 next_obs,
                 action,
                 reward,
-                done,
-                infos,
+                done
             )
-
-        self.info_buffer[self.pos].append(infos)
 
         # update current pointer
         self.current_idx += 1
