@@ -2,7 +2,7 @@
 seed: 1
 random_seed: 2022
 num_agents: 2
-state_dim: 21
+state_dim: 27
 action_dim: 4
 max_action: 1.5
 
