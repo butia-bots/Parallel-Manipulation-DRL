@@ -725,15 +725,15 @@ class HerReplayBuffer(ReplayBuffer):
         if self.replay_buffer is not None:
             self.replay_buffer.add(
                 obs,
-                next_obs,
                 action,
                 reward,
-                done
+                next_obs,
+                done,
+                gamma
             )
 
         # update current pointer
         self.current_idx += 1
-
         self.episode_steps += 1
 
         if done or self.episode_steps >= self.max_episode_length:
