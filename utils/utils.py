@@ -410,16 +410,14 @@ def get_obs_shape(
 
 
 class HerReplayBuffer(ReplayBuffer):
-    def __init__(
-        self,
-        config, env,
+    def __init__(self, config, save_dir,
         buffer_size: int,
         device: Union[torch.device, str] = "cpu",
         replay_buffer=None,
         max_episode_length: Optional[int] = None,
         n_sampled_goal: int = 4,
         goal_selection_strategy: Union[GoalSelectionStrategy, str] = "future",
-        online_sampling: bool = True,
+        online_sampling: bool = False,
         handle_timeout_termination: bool = True,
         clip_obs: float = 10.0,
         epsilon: float = 1e-8
@@ -449,7 +447,6 @@ class HerReplayBuffer(ReplayBuffer):
         # for online sampling, it replaces the "classic" replay buffer completely
         her_buffer_size = buffer_size if online_sampling else self.max_episode_length
 
-        self.env = env
         self.buffer_size = her_buffer_size
         self.clip_obs = clip_obs
         self.epsilon = epsilon
@@ -496,43 +493,6 @@ class HerReplayBuffer(ReplayBuffer):
         self.info_buffer = [deque(maxlen=self.max_episode_length) for _ in range(self.max_episode_stored)]
         # episode length storage, needed for episodes which has less steps than the maximum length
         self.episode_lengths = np.zeros(self.max_episode_stored, dtype=np.int64)
-
-    def __getstate__(self) -> Dict[str, Any]:
-        """
-        Gets state for pickling.
-        Excludes self.env, as in general Env's may not be pickleable.
-        Note: when using offline sampling, this will also save the offline replay buffer.
-        """
-        state = self.__dict__.copy()
-        # these attributes are not pickleable
-        del state["env"]
-        return state
-
-    def __setstate__(self, state: Dict[str, Any]) -> None:
-        """
-        Restores pickled state.
-        User must call ``set_env()`` after unpickling before using.
-        :param state:
-        """
-        self.__dict__.update(state)
-        assert "env" not in state
-        self.env = None
-
-    def set_env(self, env) -> None:
-        """
-        Sets the environment.
-        :param env:
-        """
-        if self.env is not None:
-            raise ValueError("Trying to set env of already initialized environment.")
-
-        self.env = env
-
-    def _get_samples(self, batch_inds: np.ndarray, env=None):
-        """
-        Abstract method from base class.
-        """
-        raise NotImplementedError()
 
     def sample_her(self, batch_size, env):
         """
@@ -869,6 +829,12 @@ class HerReplayBuffer(ReplayBuffer):
             # update "full" indicator
             self.full = self.full or self.pos == 0
 
+    def dump(self, save_dir):
+        fn = os.path.join(save_dir, "replay_buffer.pkl")
+        with open(fn, 'wb') as f:
+            pickle.dump(self._storage, f)
+        print(f"Buffer dumped to {fn}")
+
 
 def create_replay_buffer(config, save_dir):
     size = config['replay_mem_size']
@@ -876,7 +842,7 @@ def create_replay_buffer(config, save_dir):
         alpha = config['priority_alpha']
         return PrioritizedReplayBuffer(size=size, alpha=alpha, save_dir=save_dir)
     elif config['her_memory']:
-        return HerReplayBuffer(config=config, size=size, save_dir=save_dir)
+        return HerReplayBuffer(config=config, buffer_size=size, save_dir=save_dir)
     return ReplayBuffer(size)
 
 
