@@ -634,6 +634,8 @@ class HerReplayBuffer(ReplayBuffer):
         new_goals = self.sample_goals(episode_indices, her_indices, transitions_indices)
         transitions["desired_goal"][her_indices] = new_goals
 
+        print('Len episode indices:', len(episode_indices))
+        print('Len transitions indices:', len(transitions_indices))
         # Convert info buffer to numpy array
         transitions["info"] = np.array(
             [
