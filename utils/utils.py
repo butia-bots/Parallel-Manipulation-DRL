@@ -765,6 +765,9 @@ class HerReplayBuffer(ReplayBuffer):
         # reset transition pointer
         self.current_idx = 0
 
+    def sample(self, batch_size, **kwags):
+        return self.sample_her(batch_size)
+
     def _sample_her_transitions(self) -> None:
         """
         Sample additional goals and store new transitions in replay buffer
