@@ -661,7 +661,7 @@ class HerReplayBuffer(ReplayBuffer):
                 transitions["next_achieved_goal"][her_indices, 0],
                 # here we use the new desired goal
                 transitions["desired_goal"][her_indices, 0],
-                transitions["info"][her_indices, 0],
+                {},
             )[0]
         # concatenate observation with (desired) goal
         observations = self._normalize_obs(transitions, maybe_vec_env)
