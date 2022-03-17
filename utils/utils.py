@@ -634,7 +634,7 @@ class HerReplayBuffer(ReplayBuffer):
         new_goals = self.sample_goals(episode_indices, her_indices, transitions_indices)
         transitions["desired_goal"][her_indices] = new_goals
 
-        print('Len episode indices:', len(episode_indices))
+        '''print('Len episode indices:', len(episode_indices))
         print('Len transitions indices:', len(transitions_indices))
         # Convert info buffer to numpy array
         print('Len info buffer:', len(self.info_buffer))
@@ -645,7 +645,7 @@ class HerReplayBuffer(ReplayBuffer):
                 self.info_buffer[episode_idx][transition_idx]
                 for episode_idx, transition_idx in zip(episode_indices, transitions_indices)
             ]
-        )
+        )'''
 
         # Edge case: episode of one timesteps with the future strategy
         # no virtual transition can be created
