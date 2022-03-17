@@ -415,7 +415,7 @@ from gym.spaces import box
 class HerReplayBuffer(ReplayBuffer):
     def __init__(self, config, save_dir, buffer_size: int, device: Union[torch.device, str] = "cpu", replay_buffer=None,
         max_episode_length: Optional[int] = None, n_sampled_goal: int = 4, goal_selection_strategy: Union[GoalSelectionStrategy, str] = "future",
-        online_sampling: bool = False, handle_timeout_termination: bool = True, clip_obs: float = 10.0, epsilon: float = 1e-8):
+        online_sampling: bool = True, handle_timeout_termination: bool = True, clip_obs: float = 10.0, epsilon: float = 1e-8):
         super(HerReplayBuffer, self).__init__(size=buffer_size)
 
         # convert goal_selection_strategy into GoalSelectionStrategy if string
@@ -634,7 +634,7 @@ class HerReplayBuffer(ReplayBuffer):
         new_goals = self.sample_goals(episode_indices, her_indices, transitions_indices)
         transitions["desired_goal"][her_indices] = new_goals
 
-        print('Len episode indices:', len(episode_indices))
+        '''print('Len episode indices:', len(episode_indices))
         print('Len transitions indices:', len(transitions_indices))
         # Convert info buffer to numpy array
         print('Len info buffer:', len(self.info_buffer))
@@ -645,7 +645,7 @@ class HerReplayBuffer(ReplayBuffer):
                 self.info_buffer[episode_idx][transition_idx]
                 for episode_idx, transition_idx in zip(episode_indices, transitions_indices)
             ]
-        )
+        )'''
 
         # Edge case: episode of one timesteps with the future strategy
         # no virtual transition can be created
@@ -661,10 +661,11 @@ class HerReplayBuffer(ReplayBuffer):
                 transitions["next_achieved_goal"][her_indices, 0],
                 # here we use the new desired goal
                 transitions["desired_goal"][her_indices, 0],
-                transitions["info"][her_indices, 0],
+                {},
             )[0]
         # concatenate observation with (desired) goal
-        observations = self._normalize_obs(transitions, maybe_vec_env)
+        #observations = self._normalize_obs(transitions, maybe_vec_env)
+        observations = transitions
 
         # HACK to make normalize obs and `add()` work with the next observation
         next_observations = {
@@ -673,7 +674,7 @@ class HerReplayBuffer(ReplayBuffer):
             # The desired goal for the next observation must be the same as the previous one
             "desired_goal": transitions["desired_goal"],
         }
-        next_observations = self._normalize_obs(next_observations, maybe_vec_env)
+        #next_observations = self._normalize_obs(next_observations, maybe_vec_env)
 
         return observations, next_observations, transitions["action"], transitions["reward"]
 
@@ -764,6 +765,9 @@ class HerReplayBuffer(ReplayBuffer):
             self.pos = 0
         # reset transition pointer
         self.current_idx = 0
+
+    def sample(self, batch_size, **kwags):
+        return self.sample_her(batch_size)
 
     def _sample_her_transitions(self) -> None:
         """
