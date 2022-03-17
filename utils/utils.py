@@ -664,7 +664,8 @@ class HerReplayBuffer(ReplayBuffer):
                 {},
             )[0]
         # concatenate observation with (desired) goal
-        observations = self._normalize_obs(transitions, maybe_vec_env)
+        #observations = self._normalize_obs(transitions, maybe_vec_env)
+        observations = transitions
 
         # HACK to make normalize obs and `add()` work with the next observation
         next_observations = {
@@ -673,7 +674,7 @@ class HerReplayBuffer(ReplayBuffer):
             # The desired goal for the next observation must be the same as the previous one
             "desired_goal": transitions["desired_goal"],
         }
-        next_observations = self._normalize_obs(next_observations, maybe_vec_env)
+        #next_observations = self._normalize_obs(next_observations, maybe_vec_env)
 
         return observations, next_observations, transitions["action"], transitions["reward"]
 
