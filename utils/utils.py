@@ -415,7 +415,7 @@ from gym.spaces import box
 class HerReplayBuffer(ReplayBuffer):
     def __init__(self, config, save_dir, buffer_size: int, device: Union[torch.device, str] = "cpu", replay_buffer=None,
         max_episode_length: Optional[int] = None, n_sampled_goal: int = 4, goal_selection_strategy: Union[GoalSelectionStrategy, str] = "future",
-        online_sampling: bool = False, handle_timeout_termination: bool = True, clip_obs: float = 10.0, epsilon: float = 1e-8):
+        online_sampling: bool = True, handle_timeout_termination: bool = True, clip_obs: float = 10.0, epsilon: float = 1e-8):
         super(HerReplayBuffer, self).__init__(size=buffer_size)
 
         # convert goal_selection_strategy into GoalSelectionStrategy if string
